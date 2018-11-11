@@ -1,0 +1,26 @@
+.env
+certs/
+device_setup/
+.aws_certs
+
+# Flask/Python Ignores
+venv/
+
+*.pyc
+__pycache__/
+
+instance/
+
+.pytest_cache/
+.coverage
+htmlcov/
+
+dist/
+build/
+*.egg-info/
+
+\.DS_Store
+
+\.vscode/
+
+pi/upload\.sh
