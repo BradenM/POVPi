@@ -7,3 +7,8 @@
   <input name="display" type="text">
   <input type='submit' value="Submit"/>
 </form>
+
+<form action="{{ url_for('toggle') }}" method="POST" >
+  <input name="on" type="submit" value="Turn On Pi">
+  <input name="off" type="submit" value="Turn Off Pi">
+</form>
