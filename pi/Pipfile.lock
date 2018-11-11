@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "686493df46a73d8af6602a375852e4ae7b660135483e467e5e7b7f9ff8ab9af0"
+            "sha256": "7e2030e808975a304d7fb6ede9510c1ddbfc906cd8ba5a41ab3620b9388767da"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,6 +16,13 @@
         ]
     },
     "default": {
+        "autoflake": {
+            "hashes": [
+                "sha256:c103e63466f11db3617167a2c68ff6a0cda35b940222920631c6eeec6b67e807"
+            ],
+            "index": "pypi",
+            "version": "==1.2"
+        },
         "awsiotpythonsdk": {
             "hashes": [
                 "sha256:b3c8af3ce24eab861447a194f3c382509dd70e90452c86a5426f1e7272460177"
@@ -68,6 +75,13 @@
             ],
             "index": "pypi",
             "version": "==1.41"
+        },
+        "pyflakes": {
+            "hashes": [
+                "sha256:9a7662ec724d0120012f6e29d6248ae3727d821bba522a0e6b356eff19126a49",
+                "sha256:f661252913bc1dbe7fcfcbf0af0db3f42ab65aabd1a6ca68fe5d466bace94dae"
+            ],
+            "version": "==2.0.0"
         },
         "python-dateutil": {
             "hashes": [

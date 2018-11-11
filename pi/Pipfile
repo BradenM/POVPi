@@ -8,6 +8,7 @@ gpiozero = "*"
 pigpio = "*"
 boto3 = "*"
 awsiotpythonsdk = "*"
+autoflake = "*"
 
 [dev-packages]
 pylint = "*"

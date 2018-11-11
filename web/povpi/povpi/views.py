@@ -3,10 +3,12 @@
     Index Views
 """
 
-from povpi import app
-from flask import render_template, request, url_for, redirect
-import boto3
 import json
+
+import boto3
+from flask import redirect, render_template, request, url_for
+
+from povpi import app
 
 
 @app.route('/')

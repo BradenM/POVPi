@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "ca207057b1894db48542f177d684025253e2700e5ad1dd013681917a4a1a234a"
+            "sha256": "9546e19dd824e009391b1c2888140524d64a0f4722874f940df9cf7723618a39"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -22,6 +22,13 @@
                 "sha256:d97b7f3cfaa4e494ad59ed6d04c938fc5ed69b590bd8f53274e258fb1119bd1b"
             ],
             "version": "==1.9.3"
+        },
+        "autoflake": {
+            "hashes": [
+                "sha256:c103e63466f11db3617167a2c68ff6a0cda35b940222920631c6eeec6b67e807"
+            ],
+            "index": "pypi",
+            "version": "==1.2"
         },
         "boto3": {
             "hashes": [
@@ -182,6 +189,13 @@
         "povpi": {
             "editable": true,
             "path": "./povpi"
+        },
+        "pyflakes": {
+            "hashes": [
+                "sha256:9a7662ec724d0120012f6e29d6248ae3727d821bba522a0e6b356eff19126a49",
+                "sha256:f661252913bc1dbe7fcfcbf0af0db3f42ab65aabd1a6ca68fe5d466bace94dae"
+            ],
+            "version": "==2.0.0"
         },
         "python-dateutil": {
             "hashes": [

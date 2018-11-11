@@ -3,14 +3,12 @@
     Braden Mars
 '''
 
-from gpiozero import LED, Motor
-from gpiozero.pins.pigpio import PiGPIOFactory
-from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient as AWSClient
-from pathlib import Path
-from signal import pause
-from time import sleep
 import os
-import json
+from time import sleep
+
+from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient as AWSClient
+from gpiozero import Motor
+from gpiozero.pins.pigpio import PiGPIOFactory
 
 
 # Custom MQTT message callback
