@@ -15,7 +15,7 @@ from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient as AWSClient
 from gpiozero import Motor
 from gpiozero.pins.pigpio import PiGPIOFactory
 
-from alpha import display
+from alpha import make_char
 
 
 def create_aws_client(profile):
@@ -54,6 +54,19 @@ def break_display(sentence):
     return False
 
 
+def display(sentence, interrupt):
+    """parses and displays sentence on POVPi"""
+    while not interrupt(sentence):
+        parsed = sentence.strip()
+        for char in sentence:
+            if interrupt(sentence):
+                break
+            char = char.upper()
+            print('Display: ', char)
+            make_char(char)
+        sleep(3)
+
+
 def main(client):
     """Main POVPi Event Loop"""
     # Subscribe to AWS Updates
@@ -62,7 +75,7 @@ def main(client):
     print("Subscribed to aws topic")
     sleep(2)
     while 1:
-        while state['enabled']:
+        if state['enabled']:
             display(state['display'], interrupt=break_display)
 
 

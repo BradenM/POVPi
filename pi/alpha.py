@@ -6,14 +6,13 @@
 
 from time import sleep
 
-from gpiozero import LED
+from gpiozero import LEDBoard
 
 """
     LED Definitions
 """
-_leds = [26, 19, 13, 6, 5, 9, 11]
-leds = [LED(l) for l in _leds]
 
+leds = LEDBoard(26, 19, 13, 6, 5, 9, 11)
 
 ALPHA = {
     """
@@ -48,19 +47,5 @@ def make_char(char):
         for i in step:
             leds[i].on()
         sleep(.3)
-        for i in step:
-            leds[i].off()
+        leds.off()
         sleep(.3)
-
-
-def display(sentence, interrupt):
-    """parses and displays sentence on POVPi"""
-    while not interrupt(sentence):
-        parsed = sentence.strip()
-        for char in sentence:
-            if interrupt(sentence):
-                break
-            char = char.upper()
-            print('Display: ', char)
-            make_char(char)
-        sleep(3)
