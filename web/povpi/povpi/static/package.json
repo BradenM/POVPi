@@ -13,10 +13,16 @@
   },
   "devDependencies": {
     "@babel/core": "^7.1.5",
+    "@babel/plugin-proposal-class-properties": "^7.1.0",
+    "@babel/plugin-proposal-decorators": "^7.1.2",
     "@babel/preset-env": "^7.1.5",
     "@babel/preset-react": "^7.0.0",
     "babel-loader": "^8.0.4",
+    "eslint": "^5.9.0",
+    "eslint-loader": "^2.1.1",
+    "eslint-plugin-react": "^7.11.1",
     "gulp": "^3.9.1",
+    "prettier-eslint": "^8.8.2",
     "react": "^16.6.1",
     "react-dom": "^16.6.1",
     "webpack": "^4.25.1",
@@ -26,9 +32,27 @@
     "presets": [
       "@babel/env",
       "@babel/react"
+    ],
+    "plugins": [
+      [
+        "@babel/plugin-proposal-decorators",
+        {
+          "legacy": true
+        }
+      ],
+      [
+        "@babel/plugin-proposal-class-properties",
+        {
+          "loose": true
+        }
+      ]
     ]
   },
   "dependencies": {
-    "material-dashboard-react": "^1.5.0"
+    "@material-ui/core": "^3.4.0",
+    "@material-ui/icons": "^3.0.1",
+    "babel-eslint": "^10.0.1",
+    "mobx": "^5.6.0",
+    "mobx-react": "^5.3.6"
   }
 }
