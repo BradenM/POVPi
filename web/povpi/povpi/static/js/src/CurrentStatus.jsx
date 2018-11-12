@@ -17,6 +17,7 @@ import ListItemText from'@material-ui/core/ListItemText';
 import ListSubheader from'@material-ui/core/ListSubheader';
 import Switch from'@material-ui/core/Switch';
 
+import axios from'axios';
 import{ observable } from'mobx';
 import{ observer } from'mobx-react';
 
@@ -57,6 +58,9 @@ class CurrentStatus extends React.Component {
 
   togglePower = () => {
     this.powerStatus = !this.powerStatus;
+    axios.post('/toggle', {
+      state: this.powerStatus
+    });
   };
 
   render() {
@@ -90,7 +94,9 @@ class CurrentStatus extends React.Component {
                   </ListItemIcon>
                   <ListItemText primary="Current Display" />
                   <ListItemSecondaryAction>
-                    <Typography variant="h6">Hello World</Typography>
+                    <Typography variant="h6">
+                      {this.props.currentMessage}
+                    </Typography>
                   </ListItemSecondaryAction>
                 </ListItem>
               </List>

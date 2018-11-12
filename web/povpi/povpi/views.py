@@ -18,10 +18,11 @@ def index():
 
 @app.route('/change', methods=["POST"])
 def change():
+    req = request.get_json()
     msg = {
         "state": {
             "desired": {
-                "display": request.form['display']
+                "display": req['message']
             }
         }
     }
@@ -33,12 +34,11 @@ def change():
 
 @app.route('/toggle', methods=["POST"])
 def toggle():
-    toggle = [k for k in request.form.keys()][0]
-    enabled = True if toggle == "on" else False
+    req = request.get_json()
     shadow = {
         "state": {
             "desired": {
-                "enabled": enabled
+                "enabled": req['state']
             }
         }
     }

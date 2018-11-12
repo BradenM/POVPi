@@ -30,6 +30,5 @@ const config = {
     ]
   }
 };
-// /Users/bradenmars/Documents/projects/rpi/povdisplay/web/povpi/povpi/static/node_modules/eslint/bin/eslint.js
 
 module.exports = config;

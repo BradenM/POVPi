@@ -20,9 +20,6 @@ const styles = {};
 
 @observer
 class MessageStatus extends React.Component {
-  @observer
-  message = '';
-
   render() {
     const{ classes } = this.props;
     return(
@@ -39,6 +36,7 @@ class MessageStatus extends React.Component {
                       margin="normal"
                       variant="filled"
                       fullWidth
+                      onChange={this.props.handleChange()}
                       style={{ margin: 8, paddingRight: '4em' }}
                     />
                   </form>
@@ -47,6 +45,7 @@ class MessageStatus extends React.Component {
                       variant="extendedFab"
                       aria-label="Delete"
                       color="primary"
+                      onClick={() => this.props.handleSubmit()}
                     >
                       <NavigationIcon style={{ marginRight: '.3em' }} />
                       Send

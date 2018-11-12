@@ -8,6 +8,7 @@ zappa = "*"
 flask = "*"
 povpi = {editable = true,path = "./povpi"}
 autoflake = "*"
+flask-cors = "*"
 
 [dev-packages]
 autopep8 = "*"
