@@ -26,7 +26,7 @@ class MessageStatus extends React.Component {
       <Card>
         <CardContent>
           <Grid container spacing={8}>
-            <Grid item xs={8}>
+            <Grid item xs={12}>
               <List subheader={<ListSubheader>Update Message</ListSubheader>}>
                 <ListItem>
                   <form noValidate autoComplete="off">
@@ -37,10 +37,13 @@ class MessageStatus extends React.Component {
                       variant="filled"
                       fullWidth
                       onChange={this.props.handleChange()}
-                      style={{ margin: 8, paddingRight: '4em' }}
+                      style={{
+                        margin: 8,
+                        paddingRight: '4em'
+                      }}
                     />
                   </form>
-                  <ListItemSecondaryAction>
+                  <ListItemSecondaryAction style={{ marginLeft: '4em' }}>
                     <Button
                       variant="extendedFab"
                       aria-label="Delete"

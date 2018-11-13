@@ -17,6 +17,7 @@ import ListItemText from'@material-ui/core/ListItemText';
 import ListSubheader from'@material-ui/core/ListSubheader';
 import Switch from'@material-ui/core/Switch';
 
+import{ get_url } from'../App';
 import axios from'axios';
 import{ observable } from'mobx';
 import{ observer } from'mobx-react';
@@ -58,7 +59,7 @@ class CurrentStatus extends React.Component {
 
   togglePower = () => {
     this.powerStatus = !this.powerStatus;
-    axios.post('/toggle', {
+    axios.post(get_url('toggle'), {
       state: this.powerStatus
     });
   };
@@ -70,7 +71,7 @@ class CurrentStatus extends React.Component {
       <Card className={classes.card}>
         <CardContent>
           <Grid container spacing={8}>
-            <Grid item xs={8}>
+            <Grid item xs={12} sm={8}>
               <List subheader={<ListSubheader>Pi Status</ListSubheader>}>
                 <ListItem>
                   <ListItemIcon>

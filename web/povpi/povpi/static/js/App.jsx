@@ -4,12 +4,16 @@ import React from'react';
 import Dashboard from'./src/Dashboard';
 import{ withStyles } from'@material-ui/core/styles';
 
-class App extends React.Component {
-  get_url(page) {
-    const url = window.location.href + page;
-    return url;
+export const get_url = (page) => {
+  const href = window.location.href;
+  let url = href + page;
+  if(href[href.length - 1] !== '/') {
+    url = href + '/' + page;
   }
+  return url;
+};
 
+class App extends React.Component {
   render() {
     const{ classes } = this.props;
     return(
