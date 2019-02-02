@@ -58,7 +58,7 @@ class CurrentStatus extends React.Component {
 
   togglePower = () => {
     this.powerStatus = !this.powerStatus;
-    axios.post('/toggle', {
+    axios.post(window.location.href + '/toggle', {
       state: this.powerStatus
     });
   };

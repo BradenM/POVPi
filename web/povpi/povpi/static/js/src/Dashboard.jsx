@@ -35,7 +35,7 @@ class Dashboard extends React.Component {
 
   handleMessageSubmit = () => {
     this.message = this.newMessage;
-    axios.post('/change', {
+    axios.post(window.location.href + '/change', {
       message: this.message
     });
   };

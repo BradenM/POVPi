@@ -26,7 +26,7 @@ class MessageStatus extends React.Component {
       <Card>
         <CardContent>
           <Grid container spacing={8}>
-            <Grid item xs={8}>
+            <Grid item xs={10}>
               <List subheader={<ListSubheader>Update Message</ListSubheader>}>
                 <ListItem>
                   <form noValidate autoComplete="off">
