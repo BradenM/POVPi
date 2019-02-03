@@ -12,7 +12,7 @@ from signal import pause
 from time import sleep
 
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient as AWSClient
-from gpiozero import Motor
+from gpiozero import Motor, InputDevice
 from gpiozero.pins.pigpio import PiGPIOFactory
 
 from alpha import make_char
@@ -41,7 +41,11 @@ def update_state(client, userdata, message):
     msg = message.payload.decode("utf-8")
     payload = json.loads(msg)
     state.update(payload['state']['desired'])
-    print('new state')
+    pwr = state['enabled']
+    print(f"PWR: {pwr}")
+    motor.stop()
+    if pwr:
+        motor.forward()
     pprint(state)
     return state
 
@@ -76,7 +80,10 @@ def main(client):
     sleep(2)
     while 1:
         if state['enabled']:
+            motor.forward()
             display(state['display'], interrupt=break_display)
+        else:
+            motor.stop()
 
 
 if __name__ == '__main__':
@@ -99,6 +106,6 @@ if __name__ == '__main__':
     # GPIO Remote Access
     factory = PiGPIOFactory(host=profile['rpi_host'])
     # DC Motor
-    motor = Motor(forward=17, backward=18, pin_factory=factory)
+    motor = Motor(forward=17, backward=27)
     main(client)
     pause()

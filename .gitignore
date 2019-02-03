@@ -23,5 +23,6 @@ build/
 
 \.vscode/
 
-pi/upload\.sh
+# Sliced Models
+models/sliced/**
 

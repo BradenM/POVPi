@@ -12,7 +12,7 @@ from gpiozero import LEDBoard
     LED Definitions
 """
 
-leds = LEDBoard(26, 19, 13, 6, 5, 9, 11)
+leds = LEDBoard(26, 19, 13, 6, 5, 0, 11, 9)
 
 ALPHA = {
     """
