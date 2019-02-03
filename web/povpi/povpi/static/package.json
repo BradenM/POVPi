@@ -7,7 +7,8 @@
   "author": "Braden Mars",
   "license": "MIT",
   "scripts": {
-    "build": "webpack -p --progress --config webpack.config.js",
+    "build": "webpack --progress -p --config webpack.config.js --output ./dist/bundle.js && yarn run upload-build",
+    "upload-build": "python build_bundle.py",
     "dev-build": "webpack --progress -d --config webpack.config.js",
     "watch": "webpack --progress -d --config webpack.config.js --watch"
   },
@@ -15,11 +16,13 @@
     "@babel/core": "^7.1.5",
     "@babel/plugin-proposal-class-properties": "^7.1.0",
     "@babel/plugin-proposal-decorators": "^7.1.2",
+    "@babel/plugin-transform-runtime": "^7.1.0",
     "@babel/preset-env": "^7.1.5",
     "@babel/preset-react": "^7.0.0",
+    "@babel/runtime": "^7.1.5",
     "babel-loader": "^8.0.4",
     "eslint": "^5.9.0",
-    "eslint-loader": "^2.1.1",
+    "eslint-loader": "2.1.0",
     "eslint-plugin-react": "^7.11.1",
     "gulp": "^3.9.1",
     "prettier-eslint": "^8.8.2",
@@ -45,6 +48,9 @@
         {
           "loose": true
         }
+      ],
+      [
+        "@babel/plugin-transform-runtime"
       ]
     ]
   },

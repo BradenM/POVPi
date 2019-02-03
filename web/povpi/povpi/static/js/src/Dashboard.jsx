@@ -8,6 +8,7 @@ import CurrentStatus from'./CurrentStatus';
 import MessageStatus from'./Message';
 import{ observable } from'mobx';
 import{ observer } from'mobx-react';
+import{ get_url } from'../App';
 import axios from'axios';
 
 const styles = (theme) => ({
@@ -29,13 +30,29 @@ class Dashboard extends React.Component {
   @observable
   message = 'Hello World';
 
+  @observable
+  shadow = undefined;
+
+  componentDidMount() {
+    this.retrieveDeviceShadow();
+  }
+
+  retrieveDeviceShadow = async () => {
+    const shadow = await axios.get(get_url('getshadow'));
+    let msg = shadow.data.display;
+    if(!msg) {
+      msg = 'Hello World!';
+    }
+    this.message = msg;
+  };
+
   handleMessageChange = (message) => (event) => {
     this.newMessage = event.target.value;
   };
 
   handleMessageSubmit = () => {
     this.message = this.newMessage;
-    axios.post(window.location.href + '/change', {
+    axios.post(get_url('change'), {
       message: this.message
     });
   };
@@ -50,13 +67,13 @@ class Dashboard extends React.Component {
               PovPi Control
             </Typography>
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={12} sm={6}>
             <MessageStatus
               handleChange={() => this.handleMessageChange()}
               handleSubmit={() => this.handleMessageSubmit()}
             />
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={12} sm={6}>
             <CurrentStatus currentMessage={this.message} />
           </Grid>
         </Grid>

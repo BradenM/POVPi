@@ -9,6 +9,7 @@ flask = "*"
 povpi = {editable = true,path = "./povpi"}
 autoflake = "*"
 flask-cors = "*"
+"boto3" = "*"
 
 [dev-packages]
 autopep8 = "*"
