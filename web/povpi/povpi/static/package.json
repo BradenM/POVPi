@@ -10,7 +10,8 @@
     "build": "webpack --progress -p --config webpack.config.js --output ./dist/bundle.js && yarn run upload-build",
     "upload-build": "python build_bundle.py",
     "dev-build": "webpack --progress -d --config webpack.config.js",
-    "watch": "webpack --progress -d --config webpack.config.js --watch"
+    "watch": "webpack --progress -d --config webpack.config.js --watch",
+    "lint": "node_modules/eslint/bin/eslint.js *.jsx **/*.jsx"
   },
   "devDependencies": {
     "@babel/core": "^7.1.5",

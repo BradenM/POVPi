@@ -9,7 +9,8 @@ flask = "*"
 povpi = {editable = true,path = "./povpi"}
 autoflake = "*"
 flask-cors = "*"
-"boto3" = "*"
+boto3 = "*"
+pyyaml = "*"
 
 [dev-packages]
 autopep8 = "*"
@@ -18,3 +19,6 @@ pylint = "*"
 
 [requires]
 python_version = "3.6"
+
+[pipenv]
+allow_prereleases = true
