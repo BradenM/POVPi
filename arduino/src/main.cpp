@@ -2,6 +2,10 @@
 #include <WiFiEsp.h>
 #include <SoftwareSerial.h>
 #include <ArduinoJson.h>
+#include <BlynkSimpleStream.h>
+
+/* Comment this out to disable prints and save space */
+#define BLYNK_PRINT Serial
 
 // Init ESP Serial
 SoftwareSerial ESPserial(2, 3);
@@ -13,6 +17,9 @@ WiFiEspClient client;
 char ssid[] = "RPIAP";
 char pass[] = "raspberrypi";
 int status = WL_IDLE_STATUS;
+
+// Blynk Settings
+char auth[] = "blynk-auth-token";
 
 // Server
 char webServer[] = "192.168.4.1";
@@ -79,6 +86,9 @@ void setup(){
     Serial.begin(9600);
     ESPserial.begin(9600);
 
+    // Init Blynk
+    Blynk.begin(ESPserial, auth);
+
     // Init ESP
     WiFi.init(&ESPserial);
     client.setTimeout(10000);
@@ -120,6 +130,9 @@ void printCurrentNet()
 
 void loop()
 {
+    // Check Blynk
+    Blynk.run();
+
     char display;
     bool enabled;
 
