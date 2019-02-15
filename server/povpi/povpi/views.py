@@ -6,9 +6,10 @@
 import json
 
 import boto3
-from flask import redirect, render_template, request, url_for, jsonify
+from flask import jsonify, redirect, render_template, request, url_for
 
 from povpi import app
+from povpi.display import make_char
 
 client = boto3.client('iot-data', 'us-east-2')
 
@@ -58,3 +59,12 @@ def get_shadow():
     shadow = json.loads(shadow_req.read())
     shadow_state = shadow['state']
     return jsonify(shadow_state['desired'])
+
+
+@app.route('/generate', methods=["GET"])
+def generate_formula():
+    text = request.args.get('text')
+    parsed = text.strip().upper()
+    formula = [make_char(i) for i in parsed]
+    resp = {"text": parsed, "formula": formula}
+    return jsonify(resp)

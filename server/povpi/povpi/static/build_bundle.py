@@ -3,8 +3,9 @@
     Uploads bundle to AWS S3 Resource
 """
 
-import boto3
 from pathlib import Path
+
+import boto3
 
 
 def main():
