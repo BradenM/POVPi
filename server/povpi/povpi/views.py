@@ -61,9 +61,9 @@ def get_shadow():
     return jsonify(shadow_state['desired'])
 
 
-@app.route('/generate', methods=["GET"])
+@app.route('/generate', methods=["POST"])
 def generate_formula():
-    text = request.args.get('text')
+    text = request.get_json()['text']
     parsed = text.strip().upper()
     formula = [make_char(i) for i in parsed]
     resp = {"text": parsed, "formula": formula}
