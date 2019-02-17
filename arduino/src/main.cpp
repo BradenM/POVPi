@@ -12,6 +12,7 @@ SoftwareSerial ESPSerial(2, 3); // RX, TX
 
 // Blink Timers
 BlynkTimer shadowTimer;
+BlynkTimer formulaTimer;
 
 // Network Connection
 char ssid[] = "RPIAP";
@@ -29,12 +30,18 @@ const int webPort = 5000;
 char* currentDisplay = "hello";
 bool isPowered = false;
 
+// Get Formula
+void getFormula(){
+  Blynk.virtualWrite(V7, currentDisplay);
+}
+
 // Update Device State
 void updateShadow(const char* newDisplay, bool newPower){
   if(strcmp(currentDisplay, newDisplay) != 0){
     char* display = const_cast<char*>(newDisplay);
     strcpy(currentDisplay, display);
     Blynk.virtualWrite(V1, currentDisplay);
+    formulaTimer.setTimeout(5000L, getFormula);
     Serial.print("New Display: ");
     Serial.println(currentDisplay);
   }
@@ -76,6 +83,24 @@ BLYNK_WRITE(V5){
   Blynk.virtualWrite(V6, isPowered);
 }
 
+// Parse Generated Formula from Server
+BLYNK_WRITE(V7){
+  Serial.println("Retrieving Formula...");
+  // JSON Buffer
+  const size_t capacity = 5*JSON_ARRAY_SIZE(4) + 16*JSON_ARRAY_SIZE(8) + JSON_OBJECT_SIZE(2) + 310;
+  DynamicJsonBuffer jsonBuffer(capacity);
+
+  // Parse
+  JsonObject& msg = jsonBuffer.parse(param.asStr());
+  if(!msg.success()){
+    Serial.println("Formula Parsing Failed");
+    return;
+  }
+  JsonArray& formula = msg["formula"];
+  formula.prettyPrintTo(Serial);
+
+}
+
 // Retrieve Shadow from AWS 
 void getShadow(){
   Blynk.virtualWrite(V0, 1);
@@ -97,4 +122,5 @@ void loop()
 {
   Blynk.run();
   shadowTimer.run();
+  formulaTimer.run();
 }
