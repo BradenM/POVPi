@@ -1,17 +1,14 @@
 #define BLYNK_PRINT Serial
-#define ESP8266_BAUD 9600
+#define BLYNK_MAX_READBYTES 2048
 
 #include <Arduino.h>
-#include <ESP8266_Lib.h>
-#include <BlynkSimpleShieldEsp8266.h>
+#include <ESP8266WiFi.h>
+#include <BlynkSimpleEsp8266.h>
 #include <SoftwareSerial.h>
 #include <ArduinoJson.h>
 
 // Software Serial
 SoftwareSerial ESPSerial(2, 3); // RX, TX
-
-// Init ESP
-ESP8266 wifi(&ESPSerial);
 
 // Blink Timers
 BlynkTimer shadowTimer;
@@ -88,10 +85,8 @@ void setup()
 {
   // Debug console
   Serial.begin(9600);
-  ESPSerial.begin(ESP8266_BAUD);
-  delay(10);
 
-  Blynk.begin(auth, wifi, ssid, pass, webServer, blynkPort);
+  Blynk.begin(auth, ssid, pass, webServer, blynkPort);
 
   while(!Blynk.connected());
   Serial.println("Blynk Ready");
