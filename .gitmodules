@@ -1,7 +1,0 @@
-[submodule "arduino/lib/WiFiEsp"]
-	path = arduino/lib/WiFiEsp
-	url = https://github.com/bportaluri/WiFiEsp.git
-
-[submodule "arduino/lib/BlynkESP8266_Lib"]
-	path = arduino/lib/BlynkESP8266_Lib
-	url = https://github.com/vshymanskyy/BlynkESP8266

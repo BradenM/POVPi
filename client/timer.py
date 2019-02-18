@@ -62,6 +62,18 @@ class BlynkTimer:
         timer.set_interval(value)
         return timer.id
 
+    def enable(self, timerId):
+        '''Enables timer'''
+        timer = self._get(timerId)
+        timer.enable()
+        return timerId
+
+    def disable(self, timerId):
+        '''Disables timer'''
+        timer = self._get(timerId)
+        timer.disable()
+        return timerId
+
     def run(self):
         '''Starts Timers'''
         [t.run() for t in self.timers]
