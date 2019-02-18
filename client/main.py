@@ -8,6 +8,7 @@ import time
 import BlynkLib
 import network
 import time
+import ujson
 from timer import BlynkTimer
 
 # Wifi Settings
@@ -26,7 +27,18 @@ SERVER = {
 
 # Virtual Pins
 V = {
-    "GETSHADOW": 0
+    "GET_SHADOW": 0,
+    "DISPLAY": 1,
+    "WRITE_DISPLAY": 2,
+    "UPDATE_DISPLAY": 3,
+    "POWER": 5,
+    "UPDATE_POWER": 6
+}
+
+# Device State
+STATE = {
+    "display": "Hello",
+    "enabled": True
 }
 
 # Init Timer
@@ -77,6 +89,21 @@ def connect_blynk():
     return blynk
 
 
+def update_shadow(new_state):
+    '''Updates/Syncs Device Shadow'''
+    display = new_state['display']
+    power = new_state['enabled']
+    if STATE['display'] != display:
+        blynk.virtual_write(V['DISPLAY'], display)
+        print("New Display: %s" % display)
+    if STATE['enabled'] != power:
+        blynk.virtual_write(V['POWER'], power)
+        print('Power: %s' % power)
+    STATE.update(new_state)
+    print("State: ", STATE)
+    return STATE
+
+
 # Startup
 print("POVPi Starting...")
 wifi = connect_wifi()
@@ -92,16 +119,37 @@ def handle_blynk_connected(ping):
     print("Ping: %sms" % ping)
 
 
-@blynk.VIRTUAL_WRITE(V['GETSHADOW'])
+@blynk.VIRTUAL_WRITE(V['GET_SHADOW'])
 def handle_shadow_hook(value):
-    print('GOT SHADOW', value)
+    '''Update shadow from server'''
+    json_data = value[0]
+    data = ujson.loads(json_data)
+    update_shadow(data)
+
+
+@blynk.VIRTUAL_WRITE(V['WRITE_DISPLAY'])
+def handle_display_update(value):
+    '''Handles Display Updates from App'''
+    print('Display Update from App')
+    data = value[0]
+    print("Incoming: ", data)
+    blynk.virtual_write(V['UPDATE_DISPLAY'], data)
+
+
+@blynk.VIRTUAL_WRITE(V['POWER'])
+def handle_power_update(value):
+    '''Handles Power updates from App'''
+    print('Power Update from App')
+    data = value[0]
+    print("Incoming: ", data)
+    blynk.virtual_write(V['UPDATE_POWER'], data)
 
 
 def main():
     '''Main Event Loop'''
     print("POVPi Ready")
     # Watch Shadow
-    timer.set_interval(4, lambda: blynk.virtual_write(V['GETSHADOW'], 1))
+    timer.set_interval(7, lambda: blynk.virtual_write(V['GET_SHADOW'], 1))
 
     while 1:
         blynk.run()
