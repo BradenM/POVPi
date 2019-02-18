@@ -3,7 +3,6 @@
 # Uploads files to ESP
 
 printf "Uploading files to ESP...\n"
-ampy ls
 ampy reset
 ampy rm /main.py
 ampy rm /timer.py
