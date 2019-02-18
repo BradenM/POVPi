@@ -32,13 +32,15 @@ V = {
     "WRITE_DISPLAY": 2,
     "UPDATE_DISPLAY": 3,
     "POWER": 5,
-    "UPDATE_POWER": 6
+    "UPDATE_POWER": 6,
+    "FORMULA": 7,
 }
 
 # Device State
 STATE = {
     "display": "Hello",
-    "enabled": True
+    "enabled": True,
+    "formula": []
 }
 
 # Init Timer
@@ -95,6 +97,8 @@ def update_shadow(new_state):
     power = new_state['enabled']
     if STATE['display'] != display:
         blynk.virtual_write(V['DISPLAY'], display)
+        timer.set_timeout(
+            3, lambda: blynk.virtual_write(V['FORMULA'], display))
         print("New Display: %s" % display)
     if STATE['enabled'] != power:
         blynk.virtual_write(V['POWER'], power)
@@ -143,6 +147,15 @@ def handle_power_update(value):
     data = value[0]
     print("Incoming: ", data)
     blynk.virtual_write(V['UPDATE_POWER'], data)
+
+
+@blynk.VIRTUAL_WRITE(V['FORMULA'])
+def handle_formula_update(value):
+    '''Parses formula from web server'''
+    print('Got Formula')
+    json_data = value[0]
+    data = ujson.loads(json_data)
+    STATE['formula'] = data
 
 
 def main():
