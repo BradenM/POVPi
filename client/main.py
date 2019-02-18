@@ -3,11 +3,13 @@
     main.py
 """
 
-from machine import Pin
 import time
+
 import BlynkLib
+
 import network
 import ujson
+from machine import Pin
 from timer import BlynkTimer
 
 # Wifi Settings
