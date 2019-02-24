@@ -9,7 +9,8 @@ import BlynkLib
 
 import network
 import ujson
-from machine import Pin
+import _thread as thread
+from machine import Pin, idle
 from timer import BlynkTimer
 
 # Wifi Settings
@@ -45,12 +46,22 @@ STATE = {
     "ready": True
 }
 
+# Status Messages
+STATUS = {
+    "BLYNK_CANNOT_CONNECT": (2, 2),
+    "READY": (3)
+}
+
 # Init Timer
 timer = BlynkTimer()
 
 # Init Pins
-LED_PINS = [0, 2, 4, 5, 12, 13, 14, 15]
+# A12, A11, A10, A9, A8, A7, A6, GPIO21
+LED_PINS = [13, 12, 27, 33, 15, 32, 14, 21]
 LEDS = [Pin(i, Pin.OUT, value=0) for i in LED_PINS]
+
+# Battery Analog
+BAT_ANALOG = 35
 
 
 def connect_wifi():
@@ -91,6 +102,7 @@ def connect_blynk():
         blynk = BlynkLib.Blynk(auth, server=addr, port=port, buffin=2048)
     except Exception as e:
         print("Failed to connect to Blynk, trying again...")
+        display_status(2, 4)
         connect_blynk()
     print("Connected to Blynk Server")
     return blynk
@@ -118,7 +130,7 @@ def update_shadow(new_state=None):
 
 def display():
     '''Displays Text on POVPi'''
-    print('Displaying')
+    # print('Displaying')
     formula = STATE['formula']
     enabled = STATE['enabled']
 
@@ -126,12 +138,27 @@ def display():
         return
 
     for char in formula:
+        time.sleep_ms(5)
         for step in char:
+            time.sleep_ms(1)
             for pin, value in enumerate(step):
                 print("LED: %s @ %s" % (LEDS[pin], value))
                 led = LEDS[pin]
                 led.value(value)
             print("")
+
+
+def display_status(times, num=len(LEDS)):
+    '''Flashes LEDS to Indicate Status'''
+    _LEDS = LEDS[:num]
+    for i in range(0, times):
+        val = 0
+        if (i // 2 == 0):
+            val = 1
+        [led.value(val) for led in _LEDS]
+        time.sleep(2)
+
+    return True
 
 
 # Startup
@@ -191,13 +218,23 @@ def handle_formula_update(value):
         STATE['ready'] = True
 
 
-def main():
-    '''Main Event Loop'''
-    print("POVPi Ready")
-
+def run_blynk():
+    '''Runs Blynk Indefinitely'''
     while 1:
         blynk.run()
         timer.run()
+        idle()
+
+
+def main():
+    '''Main Event Loop'''
+    print("POVPi Ready")
+    display_status(3)
+    # Run Blynk in Thread
+    thread.stack_size(5*1024)
+    thread.start_new_thread(run_blynk, ())
+
+    while 1:
         if STATE['ready']:
             display()
 

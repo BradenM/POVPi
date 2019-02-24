@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 
-# Reset ESP32
+# Reset ESP
 
 # Erase Flash
 esptool --port $AMPY_PORT erase_flash
 
 # Reflash
-esptool --chip esp32 --port $AMPY_PORT write_flash -z 0x1000 ./esp32.bin
+esptool --port /dev/ttyUSB0 --baud 460800 write_flash --flash_size=detect 0 ./esp8266.bin
+
 
 # Upload Files
-printf "\n Setting ESP32 Up..."
+printf "\n Setting ESP8266 Up..."
 sleep 5
 ampy mkdir /lib
 ampy put lib/BlynkLib.py /lib/BlynkLib.py
