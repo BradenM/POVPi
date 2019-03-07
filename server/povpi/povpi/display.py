@@ -4,51 +4,35 @@
 
     Handles formula generation for POVPi
 '''
+from itertools import chain
 
-# LED Pin Numbers for Display
-leds = [26, 19, 13, 6, 5, 9, 11, 9]
+# Number of Columns on Display
+NUM_COLUMNS = 64
 
 
 """
         Alpha Character Definitions
 """
 ALPHA = {
-    "A": [
-        range(2, len(leds)),
-        [0, 1, 3, 4],
-        [0, 1, 3, 4],
-        range(2, len(leds)),
-    ],
-    "E": [
-        range(0, len(leds)),
-        [0, 1, 3, 5, 6],
-        [0, 1, 3, 5, 6]
-    ],
-    "L": [
-        range(0, len(leds)),
-        [7],
-        [7],
-        [7],
-    ],
-    "_SPACE_": [
-        [],
-        [],
-        []
-    ]
+    "_SPACE_": [0, 0, 0, 0, 0, 0],
+    "E": [0, 31, 21, 21, 0, 0],
+    "L": [0, 31, 16, 16, 16, 0],
+    # "L": [0, 252, 4, 4, 4, 0],
+    "T": [0, 128, 128, 31, 128, 128],
+    "N": [0, 31, 4, 8, 16, 31],
+    "P": [0, 252, 160, 160, 224, 0],
+    "O": [0, 252, 132, 132, 252, 0],
+    "V": [0, 240, 48, 8, 48, 240],
+    "I": [0, 132, 132, 252, 132, 132],
+    "[ALL]": [31, 31, 31, 31, 31, 31]
 }
 
 
-def make_char(char):
-    '''create character from alpha formula'''
-    if char == " " or char not in ALPHA.keys():
-        print(f">> {char} << NOT FOUND")
-        print(ALPHA.keys())
-        return make_char("_SPACE_")
-    print(f"RESOLVING: {char}")
-
-    formula = ALPHA[char]
-    leds = [[0 for col in range(8)] for row in range(len(formula))]
-    for pos, step in enumerate(formula):
-        for i in step:
-            leds[pos][i] = 1
-    return leds
+def generate(text):
+    '''Generates dict with '''
+    parsed = text.strip().upper()
+    char_bytes = [ALPHA.get(i, ALPHA["_SPACE_"]) for i in parsed]
+    # Flatten List
+    char_bytes = list(chain(*char_bytes))
+    formula = {index: byte for index, byte in enumerate(char_bytes)}
+    return formula
