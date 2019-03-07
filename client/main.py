@@ -4,14 +4,17 @@
 """
 
 import time
+import esp32
 
 import BlynkLib
 
 import network
 import ujson
 import _thread as thread
-from machine import Pin, idle
+import machine
+from machine import Pin, ADC
 from timer import BlynkTimer
+import micropython as mp
 
 # Wifi Settings
 WIFI = {
@@ -38,12 +41,20 @@ V = {
     "FORMULA": 7,
 }
 
-# Device State
-STATE = {
+# Device Shadow
+SHADOW = {
     "display": "Hello",
     "enabled": True,
     "formula": None,
-    "ready": True
+    "ready": True,
+}
+
+# Device State
+STATE = {
+    "LAST_REV": None,
+    "COL_TIME": 0,
+    "COL_INDEX": 0,
+    "PREV_DELTAS": []
 }
 
 # Status Messages
@@ -57,11 +68,20 @@ timer = BlynkTimer()
 
 # Init Pins
 # A12, A11, A10, A9, A8, A7, A6, GPIO21
-LED_PINS = [13, 12, 27, 33, 15, 32, 14, 21]
+# LED_PINS = [13, 12, 27, 33, 15, 32, 14, 21]
+LED_PINS = [21, 14, 32, 15, 33, 27, 12, 13]
 LEDS = [Pin(i, Pin.OUT, value=0) for i in LED_PINS]
 
 # Battery Analog
 BAT_ANALOG = 35
+
+# Hall Effect Setup/Threshold
+HALL_THRESHOLD = 300
+HALL_PIN = Pin(34, Pin.IN)
+
+# Interrupt Counters
+interruptCounter = 0
+totalInterrupts = 0
 
 
 def connect_wifi():
@@ -115,49 +135,95 @@ def update_shadow(new_state=None):
     [led.value(0) for led in LEDS]
     display = new_state['display']
     power = new_state['enabled']
-    if STATE['display'] != display:
+    if SHADOW['display'] != display:
         blynk.virtual_write(V['DISPLAY'], display)
         print("New Display: %s" % display)
-    if STATE['enabled'] != power:
+    if SHADOW['enabled'] != power:
         blynk.virtual_write(V['POWER'], power)
         print('Power: %s' % power)
     timer.set_timeout(
         4, lambda: blynk.virtual_write(V['FORMULA'], display))
-    STATE.update(new_state)
-    print("State: ", STATE)
-    return STATE
+    SHADOW.update(new_state)
+    print("State: ", SHADOW)
+    return SHADOW
+
+
+def handle_hall_interrupt(pin):
+    '''Handles Hall Effect Interrupt'''
+    global interruptCounter
+    interruptCounter += 1
+    mp.schedule(get_column_rev, pin)
+
+
+def get_column_rev(pin):
+    '''Returns Time in ms for the revolution of a single column'''
+    time_start = STATE['LAST_REV']
+    time_delta = time.ticks_diff(time.ticks_cpu(), time_start)
+    STATE["COL_TIME"] = int(time_delta / 64.00)
+    STATE["COL_INDEX"] = 0
+    STATE['LAST_REV'] = time.ticks_cpu()
+    # print("COLTIME:", col_time)
+    return STATE["COL_TIME"]
+
+
+def display_column(bits, timeout):
+    '''Displays singular column from array of bits'''
+    cur_column = STATE["COL_INDEX"]
+    # if cur_column >= 16 and cur_column <= 48:
+    #     bits = list(reversed(bits))
+    led_count = len(LEDS)
+    while 1:
+        if time.ticks_diff(timeout, time.ticks_cpu()) <= 0:
+            try:
+                for i in range(0, led_count):
+                    LEDS[i].value(bits[i])
+            except IndexError:
+                for o in range(i, led_count):
+                    LEDS[o].value(0)
+            break
+
+    STATE["COL_INDEX"] += 1
+
+    # print(STATE["COL_INDEX"])
 
 
 def display():
     '''Displays Text on POVPi'''
-    # print('Displaying')
-    formula = STATE['formula']
-    enabled = STATE['enabled']
+    formula = SHADOW['formula']
+    enabled = SHADOW['enabled']
 
     if not formula:
         return
 
-    for char in formula:
-        time.sleep_ms(5)
-        for step in char:
-            time.sleep_ms(1)
-            for pin, value in enumerate(step):
-                print("LED: %s @ %s" % (LEDS[pin], value))
-                led = LEDS[pin]
-                led.value(value)
-            print("")
+    # Get Times
+    col_time = STATE["COL_TIME"]
+    display_at = time.ticks_add(time.ticks_cpu(), col_time)
+    col_key = STATE["COL_INDEX"]
+
+    # Get Bits
+    if col_key < 64:
+        display_bits = formula[str(col_key)]
+        display_column(display_bits, display_at)
+    else:
+        [led.value(0) for led in LEDS]
+
+    # Handle Interrupts
+    global interruptCounter
+    global totalInterrupts
+    if interruptCounter > 0:
+        state = machine.disable_irq()
+        interruptCounter -= 1
+        machine.enable_irq(state)
+        totalInterrupts += 1
 
 
 def display_status(times, num=len(LEDS)):
     '''Flashes LEDS to Indicate Status'''
     _LEDS = LEDS[:num]
     for i in range(0, times):
-        val = 0
-        if (i // 2 == 0):
-            val = 1
-        [led.value(val) for led in _LEDS]
-        time.sleep(2)
-
+        [led.value(int(not led.value())) for led in _LEDS]
+        time.sleep_ms(100)
+    [led.value(0) for led in _LEDS]
     return True
 
 
@@ -187,7 +253,7 @@ def handle_shadow_hook(value):
 @blynk.VIRTUAL_WRITE(V['WRITE_DISPLAY'])
 def handle_display_update(value):
     '''Handles Display Updates from App'''
-    STATE['ready'] = False
+    SHADOW['ready'] = False
     print('Display Update from App')
     data = value[0]
     print("Incoming: ", data)
@@ -198,7 +264,7 @@ def handle_display_update(value):
 @blynk.VIRTUAL_WRITE(V['POWER'])
 def handle_power_update(value):
     '''Handles Power updates from App'''
-    STATE['ready'] = False
+    SHADOW['ready'] = False
     print('Power Update from App')
     data = value[0]
     print("Incoming: ", data)
@@ -212,10 +278,20 @@ def handle_formula_update(value):
     print('Got Formula')
     json_data = value[0]
     data = ujson.loads(json_data)
-    STATE['formula'] = data['formula']
-    power = STATE['enabled']
+    dec_formula = data['formula']
+    # If formula does not take entire 64 columns, fill the rest with 0s
+    # form_len = len(formula.keys())
+    form_len = len(dec_formula)
+    if form_len < 64:
+        for i in range(form_len, 64):
+            dec_formula[str(i)] = 0
+    # Convert Formula from decimal to binary
+    formula = {key: [int(bit) for bit in bin(val)[2:]]
+               for key, val in dec_formula.items()}
+    SHADOW['formula'] = formula
+    power = SHADOW['enabled']
     if power:
-        STATE['ready'] = True
+        SHADOW['ready'] = True
 
 
 def run_blynk():
@@ -223,7 +299,6 @@ def run_blynk():
     while 1:
         blynk.run()
         timer.run()
-        idle()
 
 
 def main():
@@ -233,10 +308,22 @@ def main():
     # Run Blynk in Thread
     thread.stack_size(5*1024)
     thread.start_new_thread(run_blynk, ())
-
+    # Enable IRQ on Hall Effect
+    HALL_PIN.irq(trigger=Pin.IRQ_FALLING, handler=get_column_rev)
+    # Test Shadow
+    test_shadow = {
+        "display": "I",
+        "enabled": True
+    }
+    update_shadow(new_state=test_shadow)
     while 1:
-        if STATE['ready']:
+        if SHADOW['ready']:
+            if STATE["LAST_REV"] == 0:
+                STATE["LAST_REV"] = time.ticks_cpu()
             display()
+        else:
+            STATE["LAST_REV"] = 0
+            STATE["COL_INDEX"] = 0
 
 
 # Start Event Loop

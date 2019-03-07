@@ -8,3 +8,5 @@
 # esp.osdebug(None)
 # import webrepl
 # webrepl.start()
+import micropython as mp
+mp.opt_level(3)
