@@ -6,17 +6,11 @@
 """
 
 import time
-import esp32
 
 import BlynkLib
 
 import network
 import ujson
-import _thread as thread
-import machine
-from machine import Pin, ADC
-from timer import BlynkTimer
-import micropython as mp
 
 # Wifi Settings
 WIFI = {

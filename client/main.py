@@ -4,20 +4,14 @@
 """
 
 import time
-import esp32
 
-import BlynkLib
-
-import network
-import ujson
 import _thread as thread
-import machine
-from machine import Pin, ADC
-from timer import BlynkTimer
-import micropython as mp
 import connect
-from connect import V, SHADOW
-
+import machine
+import micropython as mp
+from connect import SHADOW, V
+from machine import Pin
+from timer import BlynkTimer
 
 # Device State
 STATE = {
