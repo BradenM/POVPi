@@ -27,5 +27,8 @@ build/
 models/sliced/**
 models/tests/**
 
+# ESP32 Tests (Not Unit Tests)
+client/tests/**
+
 pvpi\.code-workspace
 *.bin
