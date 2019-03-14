@@ -6,25 +6,29 @@
 '''
 from itertools import chain
 
-# Number of Columns on Display
-NUM_COLUMNS = 64
-
 
 """
-        Alpha Character Definitions
+        Definitions
 """
+
+# LEDs - GPIO: 21, 14, 26, 15, 25, 27, 12, 13
+L = [2097152, 16384, 67108864, 32768, 33554432, 134217728, 4096, 8192]
+ALL = sum(L)  # 237039616
+ALL_S = sum(L[1:])  # All (Short, minus initial LED)
+
+# Alphanumeric Characters
 ALPHA = {
     "_SPACE_": [0, 0, 0, 0, 0, 0],
-    "E": [0, 31, 21, 21, 0, 0],
-    "L": [0, 31, 16, 16, 16, 0],
-    # "L": [0, 252, 4, 4, 4, 0],
-    "T": [0, 128, 128, 31, 128, 128],
-    "N": [0, 31, 4, 8, 16, 31],
-    "P": [0, 252, 160, 160, 224, 0],
-    "O": [0, 252, 132, 132, 252, 0],
-    "V": [0, 240, 48, 8, 48, 240],
-    "I": [0, 132, 132, 252, 132, 132],
-    "[ALL]": [31, 31, 31, 31, 31, 31]
+    "T": [0, L[7], L[7], ALL_S, L[7], L[7]],
+    "P": [0, 0, ALL_S, L[7] + L[4], L[7] + L[4], sum(L[4:])],
+    "O": [0, 0, ALL_S, L[1] + L[7], L[1] + L[7], ALL_S],
+    "V": [0, sum(L[2:]), L[1], L[0], L[1], sum(L[2:])],
+    "I": [0, 0, L[1] + L[7], ALL_S, L[1] + L[7], 0]
+}
+
+# Special Characters / Displays
+SPECIAL = {
+    "_LINE_": [ALL, 0, 0, 0, 0, 0]
 }
 
 
@@ -34,5 +38,7 @@ def generate(text):
     char_bytes = [ALPHA.get(i, ALPHA["_SPACE_"]) for i in parsed]
     # Flatten List
     char_bytes = list(chain(*char_bytes))
+    if parsed in SPECIAL.keys():
+        char_bytes = SPECIAL[parsed]
     formula = {index: byte for index, byte in enumerate(char_bytes)}
     return formula

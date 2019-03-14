@@ -147,10 +147,7 @@ def handle_formula_update(value):
     if form_len < 64:
         for i in range(form_len, 64):
             dec_formula[str(i)] = 0
-    # Convert Formula from decimal to binary
-    formula = {key: [int(bit) for bit in bin(val)[2:]]
-               for key, val in dec_formula.items()}
-    SHADOW['formula'] = formula
+    SHADOW['formula'] = dec_formula
     power = SHADOW['enabled']
     if power:
         SHADOW['ready'] = True
