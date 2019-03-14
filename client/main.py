@@ -91,10 +91,10 @@ def handle_hall_interrupt(pin):
 def get_column_rev(pin):
     '''Returns Time in ms for the revolution of a single column'''
     time_start = STATE['LAST_REV']
-    time_delta = time.ticks_diff(time.ticks_us(), time_start)
+    time_delta = time.ticks_diff(time.ticks_cpu(), time_start)
     STATE["COL_TIME"] = int(time_delta / 64.00)
     STATE["COL_INDEX"] = 0
-    STATE['LAST_REV'] = time.ticks_us()
+    STATE['LAST_REV'] = time.ticks_cpu()
     return STATE["COL_TIME"]
 
 
@@ -102,7 +102,7 @@ def display_column(byte, timeout):
     '''Displays column on POVPi'''
     cleared = ALL_LEDS - byte
     while 1:
-        if time.ticks_diff(timeout, time.ticks_us()) <= 0:
+        if time.ticks_diff(timeout, time.ticks_cpu()) <= 0:
             if byte == 0:
                 machine.mem32[GPIO_REG + GPIO_CLR] ^= ALL_LEDS
                 return True
@@ -116,7 +116,7 @@ def display(formula, col_index, col_time):
     if not formula:
         return
 
-    col_timeout = time.ticks_add(time.ticks_us(), col_time)
+    col_timeout = time.ticks_add(time.ticks_cpu(), col_time)
     if col_index < 64:
         display_step = formula[str(col_index)]
         display_column(display_step, col_timeout)
@@ -170,14 +170,14 @@ def main():
             machine.enable_irq(state)
             CUR_FORMULA = SHADOW["formula"]
             time_start = STATE['LAST_REV']
-            time_delta = time.ticks_diff(time.ticks_us(), time_start)
+            time_delta = time.ticks_diff(time.ticks_cpu(), time_start)
             STATE["COL_TIME"] = int(time_delta / 64.00)
             STATE["COL_INDEX"] = 0
-            STATE['LAST_REV'] = time.ticks_us()
+            STATE['LAST_REV'] = time.ticks_cpu()
             totalInterrupts += 1
         if SHADOW["ready"]:
             if STATE["LAST_REV"] == 0:
-                STATE["LAST_REV"] = time.ticks_us()
+                STATE["LAST_REV"] = time.ticks_cpu()
             display(CUR_FORMULA, STATE["COL_INDEX"],
                     STATE["COL_TIME"])
             STATE["COL_INDEX"] += 1
