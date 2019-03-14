@@ -11,7 +11,7 @@ import BlynkLib
 
 import network
 import ujson
-
+from array import array
 # Wifi Settings
 WIFI = {
     "ssid": "RPIAP",
@@ -147,7 +147,8 @@ def handle_formula_update(value):
     if form_len < 64:
         for i in range(form_len, 64):
             dec_formula[str(i)] = 0
-    SHADOW['formula'] = dec_formula
+    formula = array('i', [dec_formula[str(i)] for i in range(0, 64)])
+    SHADOW['formula'] = formula
     power = SHADOW['enabled']
     if power:
         SHADOW['ready'] = True
