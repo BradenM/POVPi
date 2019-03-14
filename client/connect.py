@@ -110,7 +110,7 @@ def handle_shadow_hook(value):
     '''Update shadow from server'''
     json_data = value[0]
     data = ujson.loads(json_data)
-    update_shadow(data)
+    SHADOW_HANDLER(data)
 
 
 @blynk.VIRTUAL_WRITE(V['WRITE_DISPLAY'])
@@ -121,7 +121,7 @@ def handle_display_update(value):
     data = value[0]
     print("Incoming: ", data)
     blynk.virtual_write(V['UPDATE_DISPLAY'], data)
-    update_shadow()
+    SHADOW_HANDLER()
 
 
 @blynk.VIRTUAL_WRITE(V['POWER'])
@@ -132,7 +132,7 @@ def handle_power_update(value):
     data = value[0]
     print("Incoming: ", data)
     blynk.virtual_write(V['UPDATE_POWER'], data)
-    update_shadow()
+    SHADOW_HANDLER()
 
 
 @blynk.VIRTUAL_WRITE(V['FORMULA'])
@@ -158,5 +158,6 @@ def handle_formula_update(value):
 
 def set_handler(shadow_handler):
     '''Sets Shadow Handler'''
+    global SHADOW_HANDLER
     SHADOW_HANDLER = shadow_handler
     return (wifi, blynk)
