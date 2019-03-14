@@ -151,6 +151,7 @@ def handle_formula_update(value):
     power = SHADOW['enabled']
     if power:
         SHADOW['ready'] = True
+    SHADOW_HANDLER(sync=True)
 
 
 def set_handler(shadow_handler):

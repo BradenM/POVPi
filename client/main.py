@@ -15,14 +15,12 @@ from timer import BlynkTimer
 micropython.alloc_emergency_exception_buf(100)
 
 # Device State
-STATE = {
-    "LAST_REV": None,
-    "COL_TIME": 0,
-    "COL_INDEX": 0,
-}
 CUR_FORMULA = None
-CUR_INDEX = 0
-CUR_TIME = 0
+READY = 0
+COL_TIME = 0
+COL_INDEX = 0
+LAST_REV = 0
+
 
 # Status Messages
 STATUS = {
@@ -63,8 +61,14 @@ interruptCounter = 0
 totalInterrupts = 0
 
 
-def update_shadow(new_state=None):
+def update_shadow(new_state=None, sync=False):
     '''Updates/Syncs Device Shadow'''
+    global READY, CUR_FORMULA
+    if sync:
+        # Sync Global Variables (performance)
+        READY = SHADOW["ready"]
+        CUR_FORMULA = SHADOW["formula"]
+        return SHADOW
     if not new_state:
         return timer.set_timeout(2, lambda: blynk.virtual_write(V["GET_SHADOW"], 1))
     display = new_state['display']
@@ -79,6 +83,9 @@ def update_shadow(new_state=None):
         4, lambda: blynk.virtual_write(V['FORMULA'], display))
     SHADOW.update(new_state)
     print("State: ", SHADOW)
+    # Sync Global Variables (performance)
+    READY = SHADOW["ready"]
+    CUR_FORMULA = SHADOW["formula"]
     return SHADOW
 
 
@@ -89,13 +96,14 @@ def handle_hall_interrupt(pin):
 
 
 def get_column_rev(pin):
+    global COL_TIME, COL_INDEX, LAST_REV
     '''Returns Time in ms for the revolution of a single column'''
-    time_start = STATE['LAST_REV']
+    time_start = LAST_REV
     time_delta = time.ticks_diff(time.ticks_cpu(), time_start)
-    STATE["COL_TIME"] = int(time_delta / 64.00)
-    STATE["COL_INDEX"] = 0
-    STATE['LAST_REV'] = time.ticks_cpu()
-    return STATE["COL_TIME"]
+    COL_TIME = int(time_delta / 64.00)
+    COL_INDEX = 0
+    LAST_REV = time.ticks_cpu()
+    return COL_TIME
 
 
 def display_column(byte, timeout):
@@ -150,7 +158,7 @@ def run_blynk():
 
 def main():
     '''Main Event Loop'''
-    global interruptCounter, totalInterrupts, CUR_FORMULA
+    global interruptCounter, totalInterrupts, CUR_FORMULA, COL_TIME, COL_INDEX, LAST_REV, READY
     print("POVPi Ready")
     display_status(3)
     # Run Blynk in Thread
@@ -168,19 +176,17 @@ def main():
             state = machine.disable_irq()
             interruptCounter -= 1
             machine.enable_irq(state)
-            CUR_FORMULA = SHADOW["formula"]
-            time_start = STATE['LAST_REV']
-            time_delta = time.ticks_diff(time.ticks_cpu(), time_start)
-            STATE["COL_TIME"] = int(time_delta / 64.00)
-            STATE["COL_INDEX"] = 0
-            STATE['LAST_REV'] = time.ticks_cpu()
+            time_delta = time.ticks_diff(time.ticks_cpu(), LAST_REV)
+            COL_TIME = int(time_delta / 64)
+            COL_INDEX = 0
+            LAST_REV = time.ticks_cpu()
             totalInterrupts += 1
-        if SHADOW["ready"]:
-            if STATE["LAST_REV"] == 0:
-                STATE["LAST_REV"] = time.ticks_cpu()
-            display(CUR_FORMULA, STATE["COL_INDEX"],
-                    STATE["COL_TIME"])
-            STATE["COL_INDEX"] += 1
+        if READY:
+            if LAST_REV == 0:
+                LAST_REV = time.ticks_cpu()
+            display(CUR_FORMULA, COL_INDEX,
+                    COL_TIME)
+            COL_INDEX += 1
 
 
 # Start Event Loop
