@@ -19,7 +19,6 @@ CUR_FORMULA = None
 READY = 0
 COL_INDEX = 0
 COL_TIME = 0
-LAST_REV = 0
 
 # Global GPIO Reg Vars
 GPIO_ODR = {}
@@ -81,17 +80,18 @@ def handle_hall_interrupt(pin):
 
 def display(byte, col_time, COL_INDEX, GPIO_REG, GPIO_EN, GPIO_CLR, ALL_LEDS):
     '''Displays Text on POVPi'''
-    if COL_INDEX < 64:
+    if COL_INDEX < 90:
         cleared = ALL_LEDS - byte
-        col_timeout = time.ticks_add(time.ticks_cpu(), col_time)
-        while 1:
-            if time.ticks_diff(col_timeout, time.ticks_cpu()) <= 0:
-                if byte == 0:
-                    machine.mem32[GPIO_REG + GPIO_CLR] ^= ALL_LEDS
-                    return COL_INDEX + 1
-                machine.mem32[GPIO_REG + GPIO_CLR] ^= cleared
-                machine.mem32[GPIO_REG + GPIO_EN] ^= byte
-                return COL_INDEX + 1
+        col_timeout = time.ticks_add(time.ticks_cpu(), col_time*4)
+        if byte == 0:
+            machine.mem32[GPIO_REG + GPIO_CLR] ^= ALL_LEDS
+        else:
+            machine.mem32[GPIO_REG + GPIO_CLR] ^= cleared
+        machine.mem32[GPIO_REG + GPIO_EN] ^= byte
+        while time.ticks_diff(col_timeout, time.ticks_cpu()) >= 0:
+            pass
+        machine.mem32[GPIO_REG + GPIO_CLR] ^= ALL_LEDS
+        return COL_INDEX + 1
     else:
         machine.mem32[GPIO_REG + GPIO_CLR] ^= ALL_LEDS
         return COL_INDEX
@@ -126,7 +126,7 @@ def run_blynk():
 
 def main():
     '''Main Event Loop'''
-    global interruptCounter, totalInterrupts, CUR_FORMULA, READY, GPIO_ODR, COL_INDEX, LAST_REV, COL_TIME
+    global interruptCounter, totalInterrupts, CUR_FORMULA, READY, GPIO_ODR, COL_INDEX, COL_TIME
 
     # PINS REGISTERS
     GPIO_REG = const(0x3ff44000)
@@ -148,6 +148,9 @@ def main():
     GPIO_ODR = {"REG": GPIO_REG, "EN": GPIO_EN, "CLR": GPIO_CLR,
                 "ALL_LEDS": ALL_LEDS, "LED_COUNT": LED_COUNT}
 
+    # Last Revolution Time
+    LAST_REV = 0
+
     print("POVPi Ready")
     display_status(9)
     # Run Blynk in Thread
@@ -167,14 +170,14 @@ def main():
             interruptCounter -= 1
             machine.enable_irq(state)
             time_delta = time.ticks_diff(time.ticks_cpu(), LAST_REV)
-            COL_TIME = int(time_delta / 64)
+            COL_TIME = int(time_delta / 360)
             COL_INDEX = 0
             LAST_REV = time.ticks_cpu()
             totalInterrupts += 1
         if READY and CUR_FORMULA:
             if LAST_REV == 0:
                 LAST_REV = time.ticks_cpu()
-            if COL_INDEX < 64:
+            if COL_INDEX < 90:
                 byte = CUR_FORMULA[COL_INDEX]
             COL_INDEX = display(byte, COL_TIME, COL_INDEX,
                                 GPIO_REG, GPIO_EN, GPIO_CLR, ALL_LEDS)

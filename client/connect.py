@@ -144,10 +144,10 @@ def handle_formula_update(value):
     dec_formula = data['formula']
     # If formula does not take entire 64 columns, fill the rest with 0s
     form_len = len(dec_formula)
-    if form_len < 64:
-        for i in range(form_len, 64):
+    if form_len < 90:
+        for i in range(form_len, 90):
             dec_formula[str(i)] = 0
-    formula = array('i', [dec_formula[str(i)] for i in range(0, 64)])
+    formula = array('i', [dec_formula[str(i)] for i in range(0, 90)])
     SHADOW['formula'] = formula
     power = SHADOW['enabled']
     if power:
