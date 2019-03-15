@@ -6,12 +6,13 @@
 """
 
 import time
+from array import array
 
 import BlynkLib
 
 import network
 import ujson
-from array import array
+
 # Wifi Settings
 WIFI = {
     "ssid": "RPIAP",

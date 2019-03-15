@@ -3,16 +3,15 @@
     main.py
 """
 
+import gc
 import time
 
 import _thread as thread
 import connect
 import machine
-import micropython
 from connect import SHADOW, V
 from machine import Pin
 from timer import BlynkTimer
-import gc
 
 # Device State
 CUR_FORMULA = None
